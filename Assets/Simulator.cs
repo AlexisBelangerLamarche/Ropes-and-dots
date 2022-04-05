@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class Simulator : MonoBehaviour
 {
+    System.Random _random = new System.Random();
     public Vector2 lineFirst;
     public Vector2 lineSecond;
     public int counterP = 0;
@@ -18,6 +19,11 @@ public class Simulator : MonoBehaviour
     public Sprite PointTexture;
     public Material LineTexture;
     public Gradient LineColor;
+    public Color PointColor;
+    public Color PointLockedColor;
+    public float PointScale;
+    public bool StickForceLenght;
+    public float ForcedLenght;
     List<Point> points = new List<Point>();
     List<Stick> sticks = new List<Stick>();
     List<GameObject> PointRender = new List<GameObject>();
@@ -54,17 +60,24 @@ public class Simulator : MonoBehaviour
 
     private void Start()
     {
-        MakeSquare(3.5f, 3.5f, 0.5f);
+        //MakeSquare(7f, 7f, .5f);
+        TempLine = new GameObject("TempLine", typeof(LineRenderer));
+        LineRenderer l = TempLine.GetComponent<LineRenderer>();
+        l.startWidth = 0.1f;
+        l.endWidth = 0.1f;
+        l.useWorldSpace = true;
+        TempLine.SetActive(false);
     }
 
     public void MakeSquare(float sizeX, float sizeY, float distanceBetween)
     {
-        for (float y = sizeY; y > -sizeY; y -= distanceBetween)
+        Camera.main.transform.position = new Vector3((sizeX - 1) / 2, (sizeY - 1) / 2, -5);
+        for (float y = 0; y < sizeY; y += distanceBetween)
         {
 
-            for (float x = sizeX; x > -sizeX; x -= distanceBetween)
+            for (float x = 0; x < sizeX; x += distanceBetween)
             {
-                if (y == sizeY)
+                if (y == sizeY - distanceBetween)
                 {
                     MakeNewPoint(x, y, true);
                 }
@@ -95,8 +108,27 @@ public class Simulator : MonoBehaviour
         }
     }
 
+    public void EraseEverything()
+    {
+        points.Clear();
+        for (int i = 0; i < PointRender.ToArray().Length; i++)
+        {
+            Destroy(PointRender[i]);
+        }
+        PointRender.Clear();
+        
+        sticks.Clear();
+        for (int i = 0; i < LineRender.ToArray().Length; i++)
+        {
+            Destroy(LineRender[i]);
+        }
+        LineRender.Clear();
+    }
+
     private Point makingPointA;
     private Point makingPointB;
+    private GameObject TempLine;
+    private float OldLenght;
     private void Update()
     {
 
@@ -104,11 +136,17 @@ public class Simulator : MonoBehaviour
         {
             Simulate();
 
+            ForcedLenght += Input.GetAxis("Mouse ScrollWheel");
+
             if (Input.GetKey(KeyCode.Mouse0))
             {
                 Debug.Log("Pressing");
 
                 DeleteClosestStick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse2))
+            {
+                MakeNearestPointLocked(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             }
         }
         else
@@ -117,31 +155,61 @@ public class Simulator : MonoBehaviour
             {
                 Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 MakeNewPoint(position.x, position.y, false);
-                Debug.Log("New point at: x" + position.x + " y" + position.y);
             }
 
             if (Input.GetKeyDown(KeyCode.Mouse2))
             {
-                Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                MakeNewPoint(position.x, position.y, true);
-                Debug.Log("New point at: x" + position.x + " y" + position.y);
+                MakeNearestPointLocked(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             }
 
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {
                 lineFirst = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 makingPointA = GetClosestPoint(lineFirst);
+                TempLine.SetActive(true);
+            }
+
+            if (TempLine.activeInHierarchy)
+            {
+                LineRenderer l = TempLine.GetComponent<LineRenderer>();
+                List<Vector3> pos = new List<Vector3>();
+                pos.Add(makingPointA.position);
+                pos.Add(new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, 0));
+                l.SetPositions(pos.ToArray());
+                l.material = LineTexture;
+                l.colorGradient = LineColor;
             }
 
             if (Input.GetKeyUp(KeyCode.Mouse1))
             {
+                TempLine.SetActive(false);
                 lineSecond = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 makingPointB = GetClosestPoint(lineSecond);
-                MakeNewStick(makingPointA, makingPointB, Vector2.Distance(lineFirst, lineSecond));
+
+                if (!StickForceLenght)
+                    MakeNewStick(makingPointA, makingPointB, Vector2.Distance(lineFirst, lineSecond));
+                else
+                    MakeNewStick(makingPointA, makingPointB, ForcedLenght);
             }
         }
 
+        Mathf.Clamp(ForcedLenght, 0, 20);
+
+        if (OldLenght != ForcedLenght)
+        {
+            OldLenght = ForcedLenght;
+            UpdateLenght();
+        }
+
         u_RenderEverything();
+    }
+
+    void UpdateLenght()
+    {
+        foreach(Stick s in sticks)
+        {
+            s.lenght = ForcedLenght;
+        }
     }
 
     public void u_RenderEverything()
@@ -177,7 +245,14 @@ public class Simulator : MonoBehaviour
             for (int i = 0; i < points.ToArray().Length; i++)
             {
                 PointRender[i].SetActive(true);
+
+                PointRender[i].GetComponent<SpriteRenderer>().color = PointColor;
+
+                if (points[i].locked)
+                    PointRender[i].GetComponent<SpriteRenderer>().color = PointLockedColor;
+
                 PointRender[i].transform.position = new Vector3(points[i].position.x, points[i].position.y, -0.1f);
+                PointRender[i].transform.localScale = new Vector3(PointScale, PointScale, PointScale);
             }
         }
         else
@@ -189,9 +264,17 @@ public class Simulator : MonoBehaviour
         }
     }
 
+    public void MakeNearestPointLocked(Vector2 positionFrom)
+    {
+        if (GetClosestPoint(positionFrom) == null)
+            return;
+
+        GetClosestPoint(positionFrom).locked = !GetClosestPoint(positionFrom).locked;
+    }
+
     public void DeleteClosestStick(Vector2 position)
     {
-        if (LineRender.Count == 0)
+        if (sticks.Count == 0)
             return;
 
         float Distance;
@@ -199,7 +282,7 @@ public class Simulator : MonoBehaviour
         int iterator = 0;
         for (int i = 0; i < sticks.ToArray().Length; i++)
         {
-            Vector3 middle = (LineRender[i].GetComponent<LineRenderer>().GetPosition(0) + LineRender[i].GetComponent<LineRenderer>().GetPosition(1)) / 2;
+            Vector2 middle = (sticks[i].PointB.position + sticks[i].PointA.position) / 2;
             Distance = Vector2.Distance(position, middle);
 
             if (bestDistance == -1)
@@ -215,15 +298,13 @@ public class Simulator : MonoBehaviour
             }
         }
 
-        Debug.Log(bestDistance);
-
         if (bestDistance > 0.3f)
             return;
 
 
+        sticks.RemoveAt(iterator);
         GameObject.Destroy(LineRender[iterator]);
         LineRender.RemoveAt(iterator);
-        sticks.RemoveAt(iterator);
 
 
     }
@@ -261,15 +342,16 @@ public class Simulator : MonoBehaviour
 
     public void Simulate()
     {
-        foreach (Point p in points)
+        foreach (Point op in points)
         {
-            if (!p.locked)
+
+            if (!op.locked)
             {
-                Vector2 positionBeforeUpdate = p.position;
-                p.position += p.position - p.prevPosition;
-                p.position += Vector2.down * gravity * Time.deltaTime * Time.deltaTime;
-                p.prevPosition = positionBeforeUpdate;
-            }
+                Vector2 positionBeforeUpdate = op.position;
+                op.position += op.position - op.prevPosition;
+                op.position += Vector2.down * gravity * Time.deltaTime * Time.deltaTime;
+                op.prevPosition = positionBeforeUpdate;
+            }  
         }
 
         for (int i = 0; i < numIterations; i++)
@@ -292,7 +374,6 @@ public class Simulator : MonoBehaviour
     {
         public Vector2 position, prevPosition;
         public bool locked;
-        private GameObject oldRender;
 
         public Point(Vector2 _position, bool _locked)
         {
