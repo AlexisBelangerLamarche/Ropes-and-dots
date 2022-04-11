@@ -18,7 +18,6 @@ public class Simulator : MonoBehaviour
     public int numIterations = 5;
     public Sprite PointTexture;
     public Material LineTexture;
-    public Gradient LineColor;
     public Color PointColor;
     public Color PointLockedColor;
     public float PointScale;
@@ -37,6 +36,7 @@ public class Simulator : MonoBehaviour
         point.GetComponent<SpriteRenderer>().sprite = PointTexture;
         point.transform.position = p.position;
         PointRender.Add(point);
+        p.gameobject = point;
         counterP += 1;
         return p;
     }
@@ -184,7 +184,8 @@ public class Simulator : MonoBehaviour
                 pos.Add(new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, 0));
                 l.SetPositions(pos.ToArray());
                 l.material = LineTexture;
-                l.colorGradient = LineColor;
+                l.startColor = makingPointA.gameobject.GetComponent<SpriteRenderer>().color;
+                l.endColor = PointColor;
             }
 
             if (Input.GetKeyUp(KeyCode.Mouse1))
@@ -224,7 +225,7 @@ public class Simulator : MonoBehaviour
         }
     }
 
-    public void u_RenderEverything()
+    void u_RenderEverything() // couldve 100% made this better
     {
 
         if (RENDERLINES)
@@ -240,7 +241,8 @@ public class Simulator : MonoBehaviour
                 l.endWidth = 0.1f;
                 l.SetPositions(pos.ToArray());
                 l.material = LineTexture;
-                l.colorGradient = LineColor;
+                l.startColor = sticks[i].PointA.gameobject.GetComponent<SpriteRenderer>().color;
+                l.endColor = sticks[i].PointB.gameobject.GetComponent<SpriteRenderer>().color;
                 l.useWorldSpace = true;
             }
         }
@@ -254,24 +256,23 @@ public class Simulator : MonoBehaviour
 
         if (RENDERPOINTS)
         {
-            for (int i = 0; i < points.ToArray().Length; i++)
+            foreach (Point p in points)
             {
-                PointRender[i].SetActive(true);
+                p.gameobject.SetActive(true);
+                p.gameobject.GetComponent<SpriteRenderer>().color = PointColor;
 
-                PointRender[i].GetComponent<SpriteRenderer>().color = PointColor;
+                if (p.locked)
+                    p.gameobject.GetComponent<SpriteRenderer>().color = PointLockedColor;
 
-                if (points[i].locked)
-                    PointRender[i].GetComponent<SpriteRenderer>().color = PointLockedColor;
-
-                PointRender[i].transform.position = new Vector3(points[i].position.x, points[i].position.y, -0.1f);
-                PointRender[i].transform.localScale = new Vector3(PointScale, PointScale, PointScale);
+                p.gameobject.transform.position = new Vector3(p.position.x, p.position.y, -0.1f);
+                p.gameobject.transform.localScale = new Vector3(PointScale, PointScale, PointScale);
             }
         }
         else
         {
-            foreach (GameObject p in PointRender)
+            foreach (Point p in points)
             {
-                p.SetActive(false);
+                p.gameobject.SetActive(false);
             }
         }
     }
@@ -355,7 +356,7 @@ public class Simulator : MonoBehaviour
         simulate = !simulate;
     }
 
-    public void Simulate()
+    void Simulate()
     {
         foreach (Point op in points)
         {
@@ -389,6 +390,7 @@ public class Simulator : MonoBehaviour
     {
         public Vector2 position, prevPosition;
         public bool locked;
+        public GameObject gameobject;
 
         public Point(Vector2 _position, bool _locked)
         {
