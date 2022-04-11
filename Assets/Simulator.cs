@@ -25,7 +25,6 @@ public class Simulator : MonoBehaviour
     public float ForcedLenght;
     List<Point> points = new List<Point>();
     List<Stick> sticks = new List<Stick>();
-    List<GameObject> PointRender = new List<GameObject>();
     List<GameObject> LineRender = new List<GameObject>();
 
     private Point MakeNewPoint(float x, float y, bool locked)
@@ -35,8 +34,13 @@ public class Simulator : MonoBehaviour
         GameObject point = new GameObject("Point " + counterP, typeof(SpriteRenderer));
         point.GetComponent<SpriteRenderer>().sprite = PointTexture;
         point.transform.position = p.position;
-        PointRender.Add(point);
         p.gameobject = point;
+
+        p.gameobject.GetComponent<SpriteRenderer>().color = PointColor;
+
+        if (p.locked)
+            p.gameobject.GetComponent<SpriteRenderer>().color = PointLockedColor;
+
         counterP += 1;
         return p;
     }
@@ -115,12 +119,11 @@ public class Simulator : MonoBehaviour
 
     public void EraseEverything()
     {
-        points.Clear();
-        for (int i = 0; i < PointRender.ToArray().Length; i++)
+        foreach (Point p in points)
         {
-            Destroy(PointRender[i]);
+            Destroy(p.gameobject);
         }
-        PointRender.Clear();
+        points.Clear();
         
         sticks.Clear();
         for (int i = 0; i < LineRender.ToArray().Length; i++)
@@ -172,7 +175,7 @@ public class Simulator : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {
                 lineFirst = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                makingPointA = GetClosestPoint(lineFirst);
+                makingPointA = GetClosestPoint(lineFirst, true);
                 TempLine.SetActive(true);
             }
 
@@ -185,14 +188,18 @@ public class Simulator : MonoBehaviour
                 l.SetPositions(pos.ToArray());
                 l.material = LineTexture;
                 l.startColor = makingPointA.gameobject.GetComponent<SpriteRenderer>().color;
-                l.endColor = PointColor;
+
+                if (GetClosestPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition), false) == null)
+                    l.endColor = PointColor;
+                else
+                    l.endColor = GetClosestPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition), false).gameobject.GetComponent<SpriteRenderer>().color;
             }
 
             if (Input.GetKeyUp(KeyCode.Mouse1))
             {
                 TempLine.SetActive(false);
                 lineSecond = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                makingPointB = GetClosestPoint(lineSecond);
+                makingPointB = GetClosestPoint(lineSecond, true);
                 if (makingPointB == makingPointA)
                     makingPointB = MakeNewPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, false);
 
@@ -259,6 +266,7 @@ public class Simulator : MonoBehaviour
             foreach (Point p in points)
             {
                 p.gameobject.SetActive(true);
+
                 p.gameobject.GetComponent<SpriteRenderer>().color = PointColor;
 
                 if (p.locked)
@@ -272,6 +280,11 @@ public class Simulator : MonoBehaviour
         {
             foreach (Point p in points)
             {
+                p.gameobject.GetComponent<SpriteRenderer>().color = PointColor;
+
+                if (p.locked)
+                    p.gameobject.GetComponent<SpriteRenderer>().color = PointLockedColor;
+
                 p.gameobject.SetActive(false);
             }
         }
@@ -279,10 +292,7 @@ public class Simulator : MonoBehaviour
 
     public void MakeNearestPointLocked(Vector2 positionFrom)
     {
-        if (GetClosestPoint(positionFrom) == null)
-            return;
-
-        GetClosestPoint(positionFrom).locked = !GetClosestPoint(positionFrom).locked;
+        GetClosestPoint(positionFrom, true).locked = !GetClosestPoint(positionFrom, true).locked;
     }
 
     public void DeleteClosestStick(Vector2 position)
@@ -322,7 +332,7 @@ public class Simulator : MonoBehaviour
 
     }
 
-    public Point GetClosestPoint(Vector2 position)
+    public Point GetClosestPoint(Vector2 position, bool makeNewIfNotFound)
     {
         float Distance;
         float bestDistance = -1;
@@ -345,7 +355,7 @@ public class Simulator : MonoBehaviour
             }
         }
 
-        if (bestPoint == null)
+        if (bestPoint == null && makeNewIfNotFound)
             return MakeNewPoint(position.x, position.y, false);
 
         return bestPoint;
