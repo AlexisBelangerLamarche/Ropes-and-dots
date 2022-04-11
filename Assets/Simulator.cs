@@ -61,6 +61,11 @@ public class Simulator : MonoBehaviour
     private void Start()
     {
         //MakeSquare(7f, 7f, .5f);
+        SetupTempLine();
+    }
+
+    void SetupTempLine()
+    {
         TempLine = new GameObject("TempLine", typeof(LineRenderer));
         LineRenderer l = TempLine.GetComponent<LineRenderer>();
         l.startWidth = 0.1f;
@@ -193,7 +198,7 @@ public class Simulator : MonoBehaviour
             }
         }
 
-        Mathf.Clamp(ForcedLenght, 0, 20);
+        ForcedLenght = Mathf.Clamp(ForcedLenght, 0, 20);
 
         if (OldLenght != ForcedLenght)
         {
@@ -206,6 +211,9 @@ public class Simulator : MonoBehaviour
 
     void UpdateLenght()
     {
+        if (StickForceLenght)
+            return;
+
         foreach(Stick s in sticks)
         {
             s.lenght = ForcedLenght;
