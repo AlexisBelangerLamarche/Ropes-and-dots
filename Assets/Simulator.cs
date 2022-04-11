@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 
@@ -140,6 +141,7 @@ public class Simulator : MonoBehaviour
         if (simulate)
         {
             Simulate();
+            GameObject.FindGameObjectWithTag("simTog").GetComponent<Toggle>().isOn = true;
 
             ForcedLenght += Input.GetAxis("Mouse ScrollWheel");
 
@@ -156,6 +158,7 @@ public class Simulator : MonoBehaviour
         }
         else
         {
+            GameObject.FindGameObjectWithTag("simTog").GetComponent<Toggle>().isOn = false;
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -190,6 +193,8 @@ public class Simulator : MonoBehaviour
                 TempLine.SetActive(false);
                 lineSecond = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 makingPointB = GetClosestPoint(lineSecond);
+                if (makingPointB == makingPointA)
+                    makingPointB = MakeNewPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, false);
 
                 if (!StickForceLenght)
                     MakeNewStick(makingPointA, makingPointB, Vector2.Distance(lineFirst, lineSecond));
@@ -211,7 +216,7 @@ public class Simulator : MonoBehaviour
 
     void UpdateLenght()
     {
-        if (StickForceLenght)
+        if (!StickForceLenght)
             return;
 
         foreach(Stick s in sticks)
@@ -339,6 +344,9 @@ public class Simulator : MonoBehaviour
                 bestPoint = p;
             }
         }
+
+        if (bestPoint == null)
+            return MakeNewPoint(position.x, position.y, false);
 
         return bestPoint;
     }
