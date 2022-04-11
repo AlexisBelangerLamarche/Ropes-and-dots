@@ -177,7 +177,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You can adjust setting in the gameobject SIMULATOR
+  m_text: You can adjust settings in the gameobject SIMULATOR
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1054,7 +1054,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &1080573705
 GameObject:
   m_ObjectHideFlags: 0
@@ -1214,10 +1214,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6754f62ca2db8b746b4dd3e728d92b45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineFirst: {x: 0, y: 0}
-  lineSecond: {x: 0, y: 0}
-  counterP: 0
-  counterS: 0
   simulate: 0
   RENDERPOINTS: 1
   RENDERLINES: 1

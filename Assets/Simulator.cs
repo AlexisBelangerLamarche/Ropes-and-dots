@@ -7,11 +7,10 @@ using UnityEngine.UI;
 
 public class Simulator : MonoBehaviour
 {
-    System.Random _random = new System.Random();
-    public Vector2 lineFirst;
-    public Vector2 lineSecond;
-    public int counterP = 0;
-    public int counterS = 0;
+    Vector2 lineFirst;
+    Vector2 lineSecond;
+    int counterP = 0;
+    int counterS = 0;
     public bool simulate;
     public bool RENDERPOINTS;
     public bool RENDERLINES;
@@ -197,13 +196,13 @@ public class Simulator : MonoBehaviour
                     makingPointB = MakeNewPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, false);
 
                 if (!StickForceLenght)
-                    MakeNewStick(makingPointA, makingPointB, Vector2.Distance(lineFirst, lineSecond));
+                    MakeNewStick(makingPointA, makingPointB, Vector2.Distance(makingPointA.position, makingPointB.position));
                 else
                     MakeNewStick(makingPointA, makingPointB, ForcedLenght);
             }
         }
 
-        ForcedLenght = Mathf.Clamp(ForcedLenght, 0, 20);
+        ForcedLenght = Mathf.Clamp(ForcedLenght, .3f, Mathf.Infinity); // Magic number restriction because i want to
 
         if (OldLenght != ForcedLenght)
         {
