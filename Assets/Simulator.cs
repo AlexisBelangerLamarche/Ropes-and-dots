@@ -64,7 +64,6 @@ public class Simulator : MonoBehaviour
 
     private void Start()
     {
-        //MakeSquare(7f, 7f, .5f);
         SetupTempLine();
     }
 
@@ -167,7 +166,7 @@ public class Simulator : MonoBehaviour
                 MakeNewPoint(position.x, position.y, false);
             }
 
-            if (Input.GetKeyDown(KeyCode.Mouse2))
+            if (Input.GetKeyDown(KeyCode.L))
             {
                 MakeNearestPointLocked(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             }
