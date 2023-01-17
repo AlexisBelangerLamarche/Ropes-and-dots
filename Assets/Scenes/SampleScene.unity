@@ -155,7 +155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 609.2, y: -689}
+  m_AnchoredPosition: {x: 609.2, y: -657}
   m_SizeDelta: {x: 657.447, y: 514.3451}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &78148033
@@ -177,7 +177,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You can adjust settings in the gameobject SIMULATOR
+  m_text: You can adjust settings in the gameobject SIMULATOR. If your playing this
+    in a compiled version well too bad lol
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -288,7 +289,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -511.85013, y: -660}
+  m_AnchoredPosition: {x: -511.85013, y: -638}
   m_SizeDelta: {x: 863.7002, y: 533.9883}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &93005905
@@ -311,7 +312,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: Mouse0 to create new point, hold Mouse1 and drag between two points to
-    create a line, Mouse2 to lock or unlock a point
+    create a line, L to lock or unlock a point. When simulating, hold Mouse0 to cut
+    ropes
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1221,35 +1223,6 @@ MonoBehaviour:
   numIterations: 10
   PointTexture: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   LineTexture: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  LineColor:
-    serializedVersion: 2
-    key0: {r: 0, g: 0.465055, b: 1, a: 1}
-    key1: {r: 1, g: 0, b: 0.4286499, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
   PointColor: {r: 0, g: 0.5142834, b: 1, a: 1}
   PointLockedColor: {r: 1, g: 0, b: 0.5694699, a: 1}
   PointScale: 1.2
