@@ -143,6 +143,7 @@ public class Simulator : MonoBehaviour
         {
             Simulate();
             GameObject.FindGameObjectWithTag("simTog").GetComponent<Toggle>().isOn = true;
+            GameObject.FindGameObjectWithTag("boton").GetComponent<Image>().color = Color.cyan;
 
             ForcedLenght += Input.GetAxis("Mouse ScrollWheel");
 
@@ -160,6 +161,7 @@ public class Simulator : MonoBehaviour
         else
         {
             GameObject.FindGameObjectWithTag("simTog").GetComponent<Toggle>().isOn = false;
+            GameObject.FindGameObjectWithTag("boton").GetComponent<Image>().color = Color.white;
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
